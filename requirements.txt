@@ -1,7 +1,7 @@
+torch
 bs4
 pandas
 requests
-pytorch
 sentencepiece
 sacremoses
-torch
+transformers
