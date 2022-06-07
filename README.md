@@ -1,4 +1,4 @@
-# Teenfic_webscraper_with_translation
+# Teenfic webscraper with auto french translation (AI)
 
 https://teenfic.net/
 
