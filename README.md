@@ -30,5 +30,5 @@ python3 teenfic-scraper.py ${URL}
 
 ```bash
 source scraper-env/bin/activate
-python3 teenfic-scraper-with-cuda.py
+python3 teenfic-scraper-with-cuda.py ${URL}
 ```
