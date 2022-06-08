@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 import time,random, sys, os
 from bs4 import BeautifulSoup as bs
-import pandas as pd
 import requests as rq
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, XLNetLMHeadModel, XLNetTokenizer
 

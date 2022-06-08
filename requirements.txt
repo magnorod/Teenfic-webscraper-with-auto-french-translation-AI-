@@ -1,6 +1,5 @@
 torch
 bs4
-pandas
 requests
 sentencepiece
 sacremoses
