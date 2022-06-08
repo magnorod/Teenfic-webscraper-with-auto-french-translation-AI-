@@ -1,4 +1,3 @@
-torch
 bs4
 requests
 sentencepiece
