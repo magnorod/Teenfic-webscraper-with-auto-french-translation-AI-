@@ -2,7 +2,7 @@
 import time,random, sys, os
 from bs4 import BeautifulSoup as bs
 import requests as rq
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, XLNetLMHeadModel, XLNetTokenizer
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, XLNetLMHeadModel, XLNetTokenizer, pipeline
 
 
 def affichage_temps_restant(temps_restant):
@@ -77,14 +77,12 @@ def build_markdown(children,chapter_title):
     f.close()
 #endef
 
-def translate_in_french_and_build_markdown(tokenizer,model,children,book_title,chapter_title):
+def translate_in_french_and_build_markdown(pipe,children,book_title,chapter_title):
     print("info: translate english to french and build markdown")
     f = open("FR_"+str(book_title)+".md", "a")
-    input_ids = tokenizer(chapter_title , return_tensors="pt").to(device)
-    outputs = model.generate(input_ids=input_ids)
-    result=tokenizer.batch_decode(outputs, skip_special_tokens=True)
-    f.write("# "+str(result[0])+"\n\n\n")
-
+    result=pipe(chapter_title)
+    dic=result[0]
+    f.write("# "+dic.get("translation_text")+"\n\n\n")
     for child in children:
         data=str(child.text)
         ref=len(data)
@@ -111,10 +109,9 @@ def translate_in_french_and_build_markdown(tokenizer,model,children,book_title,c
                 else:
                     data_split=data[actual_point+1:next_point+1]
                 #endif
-                input_ids = tokenizer(data_split , return_tensors="pt").to(device)
-                outputs = model.generate(input_ids=input_ids)
-                result=tokenizer.batch_decode(outputs, skip_special_tokens=True)
-                f.write(result[0])
+                result=pipe(data_split)
+                dic=result[0]
+                f.write(dic.get("translation_text"))
                 j=j+1
                 
                 if ref <= 500:
@@ -128,19 +125,17 @@ def translate_in_french_and_build_markdown(tokenizer,model,children,book_title,c
 
                     ref=0
                     data_split=data[actual_point+1:]
-                    input_ids = tokenizer(data_split , return_tensors="pt").to(device)
-                    outputs = model.generate(input_ids=input_ids)
-                    result=tokenizer.batch_decode(outputs, skip_special_tokens=True)
+                    result=pipe(data_split)
+                    dic=result[0]
+                    f.write(dic.get("translation_text")+"\n\n\n\n\n")
                     # print("trad=\n"+str(result[0]))
-                    f.write(result[0]+"\n\n\n\n\n")
                     j=j+1
                 #endif
             elif ref <= 500 and j == 0:
                 ref=0
-                input_ids = tokenizer(data , return_tensors="pt").to(device)
-                outputs = model.generate(input_ids=input_ids)
-                result=tokenizer.batch_decode(outputs, skip_special_tokens=True)
-                f.write(result[0]+"\n\n\n\n\n")
+                result=pipe(data)
+                dic=result[0]
+                f.write(dic.get("translation_text")+"\n\n\n\n\n")
                 j=j+1
              #endif
     f.close()
@@ -180,20 +175,17 @@ def clean_file(book_title):
 #endef
 
 if __name__ == '__main__' :
-    torch.cuda.is_available()
     random.seed()
     start = time.time()
 
-
-    
-    inputs    = tokenizer(sentence, return_tensors="pt").to(device)
-    model     = model.to(device)
-    outputs   = model(**inputs)
     # model init
-    device = "cuda:0" if torch.cuda.is_available() else "cpu" # use GPU if CUDA is available
     model_name = "Helsinki-NLP/opus-mt-tc-big-en-fr" 
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+    #define pipeline
+    pipe = pipeline("translation", 
+                        model=model_name,
+                        device=-1 # to utilize CPU
+                        )
 
     i=0
     while True:
@@ -215,11 +207,11 @@ if __name__ == '__main__' :
         #endif
         print("info: web scraping "+str(book_title)+" "+str(chapter_title))
         children=parse_chapter_content(soup,book_title)
-        translate_in_french_and_build_markdown(tokenizer,model,children,book_title,chapter_title)
+        translate_in_french_and_build_markdown(pipe,children,book_title,chapter_title)
         i=i+1
+        end = time.time()
+        temps_restant=end-start
+        affichage_temps_restant(temps_restant)
     #endwhile
     print("info: web scraping done")
     generate_file(book_title)
-    end = time.time()
-    temps_restant=end-start
-    affichage_temps_restant(temps_restant)
