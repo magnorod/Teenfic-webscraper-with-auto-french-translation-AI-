@@ -40,10 +40,6 @@ def parse_next_url(soup,base_url):
     a=soup.find(class_='nextChapter')
     b=str(a).split(" ")
     c=b[2].split("=")
-    print("a="+str(a))
-    print("b="+str(b))
-    print("c="+str(c))
-    print("c[0]="+str(c[0]))
     if c[0] == "disabled\"":
         return base_url
     else:
@@ -176,11 +172,6 @@ def check_args():
 def clean_file(book_title):
     print("info: remove old markdown files")
     cmd="rm 'FR_"+str(book_title)+"'.md"
-    try:
-        os.system(cmd)
-    except:
-        pass
-    cmd="rm 'EN_"+str(book_title)+"'.md"
     try:
         os.system(cmd)
     except:
