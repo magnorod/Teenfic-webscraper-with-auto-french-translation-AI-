@@ -5,7 +5,7 @@ https://teenfic.net/
 https://huggingface.co/Helsinki-NLP/opus-mt-tc-big-en-fr
 
 
-If your GPU support CUDA, used it instead of your CPU (GPU is approximately 6 times faster in sequential mode with my hardware).
+If your GPU support CUDA,please use it instead of your CPU (GPU is approximately 6 times faster in sequential mode with my hardware).
 
 https://developer.nvidia.com/cuda-downloads
 
